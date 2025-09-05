@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Search, Download, AlertCircle, CheckCircle } from 'lucide-react';
+import { Search, Download, AlertCircle, CheckCircle, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ThumbnailData {
   url: string;
@@ -20,6 +21,7 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const { toast } = useToast();
+  const { t, language, setLanguage } = useLanguage();
 
   // Extract video ID from YouTube URL
   const extractVideoId = (url: string): string | null => {
@@ -38,13 +40,13 @@ const Index = () => {
   // Handle form submission
   const handleSearch = async () => {
     if (!videoUrl.trim()) {
-      setError('Por favor, cole a URL do vídeo do YouTube.');
+      setError(t('error.emptyUrl'));
       return;
     }
 
     const extractedId = extractVideoId(videoUrl.trim());
     if (!extractedId) {
-      setError('URL inválida. Use uma URL válida do YouTube.');
+      setError(t('error.invalidUrl'));
       return;
     }
 
@@ -56,19 +58,19 @@ const Index = () => {
     const thumbnailQualities: ThumbnailData[] = [
       {
         url: `https://img.youtube.com/vi/${extractedId}/maxresdefault.jpg`,
-        quality: 'Alta qualidade',
+        quality: t('results.highQuality'),
         resolution: '1280×720',
         size: 'maxresdefault.jpg'
       },
       {
         url: `https://img.youtube.com/vi/${extractedId}/hqdefault.jpg`,
-        quality: 'Média qualidade',
+        quality: t('results.mediumQuality'),
         resolution: '480×360',
         size: 'hqdefault.jpg'
       },
       {
         url: `https://img.youtube.com/vi/${extractedId}/mqdefault.jpg`,
-        quality: 'Baixa qualidade',
+        quality: t('results.lowQuality'),
         resolution: '320×180',
         size: 'mqdefault.jpg'
       }
@@ -78,8 +80,8 @@ const Index = () => {
     setIsLoading(false);
     
     toast({
-      title: "Thumbnails encontradas!",
-      description: "Escolha a resolução desejada e clique em baixar.",
+      title: t('success.found'),
+      description: t('success.foundDesc'),
     });
   };
 
@@ -99,13 +101,13 @@ const Index = () => {
       window.URL.revokeObjectURL(url);
 
       toast({
-        title: "Download iniciado!",
-        description: `Thumbnail em ${quality.toLowerCase()} baixada com sucesso.`,
+        title: t('success.download'),
+        description: t('success.downloadDesc').replace('{quality}', quality.toLowerCase()),
       });
     } catch (error) {
       toast({
-        title: "Erro no download",
-        description: "Não foi possível baixar a imagem. Tente novamente.",
+        title: t('error.downloadTitle'),
+        description: t('error.downloadDesc'),
         variant: "destructive",
       });
     }
@@ -123,15 +125,26 @@ const Index = () => {
               </div>
               <div>
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground">
-                  Baixar Thumbnail de Vídeo do YouTube
+                  {t('header.title')}
                 </h1>
                 <div className="text-sm text-primary font-medium mt-1">
-                  Almanaque da Hora
+                  {t('header.brand')}
                 </div>
+              </div>
+              <div className="ml-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setLanguage(language === 'en' ? 'pt' : 'en')}
+                  className="flex items-center gap-2"
+                >
+                  <Globe className="w-4 h-4" />
+                  {language === 'en' ? 'PT' : 'EN'}
+                </Button>
               </div>
             </div>
             <h2 className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              Cole a URL do vídeo e baixe a imagem de capa em alta qualidade
+              {t('header.subtitle')}
             </h2>
           </div>
         </div>
@@ -145,14 +158,17 @@ const Index = () => {
             <div className="space-y-2">
               <Input
                 type="url"
-                placeholder="Cole a URL do vídeo do YouTube aqui..."
+                placeholder={t('search.placeholder')}
                 value={videoUrl}
                 onChange={(e) => setVideoUrl(e.target.value)}
                 className="text-lg py-3"
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               />
               <p className="text-sm text-muted-foreground">
-                Exemplo: https://www.youtube.com/watch?v=dQw4w9WgXcQ
+                {t('search.example')}
+              </p>
+              <p className="text-sm text-muted-foreground mt-4 p-4 bg-muted/30 rounded-lg">
+                {t('search.description')}
               </p>
             </div>
             
@@ -170,7 +186,7 @@ const Index = () => {
               className="w-full font-semibold py-3 text-lg"
             >
               <Search className="w-5 h-5 mr-2" />
-              {isLoading ? 'Buscando...' : 'Buscar Thumbnail'}
+              {isLoading ? t('search.searching') : t('search.button')}
             </Button>
           </div>
         </Card>
@@ -181,7 +197,7 @@ const Index = () => {
             <div className="flex items-center gap-2 mb-6">
               <CheckCircle className="w-6 h-6 text-primary" />
               <h3 className="text-2xl font-bold text-foreground">
-                Thumbnails Disponíveis
+                {t('results.title')}
               </h3>
             </div>
             
@@ -216,7 +232,7 @@ const Index = () => {
                         className="w-full font-medium"
                       >
                         <Download className="w-4 h-4 mr-2" />
-                        Baixar Imagem
+                        {t('results.download')}
                       </Button>
                     </div>
                   </div>
@@ -232,16 +248,25 @@ const Index = () => {
         <div className="container mx-auto px-4 py-8">
           <div className="text-center space-y-4">
             <div className="flex flex-wrap justify-center gap-6 text-sm">
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                Política de Privacidade
+              <a href="/" className="text-muted-foreground hover:text-primary transition-colors">
+                {t('footer.home')}
+              </a>
+              <a href="/about" className="text-muted-foreground hover:text-primary transition-colors">
+                {t('footer.about')}
+              </a>
+              <a href="/contact" className="text-muted-foreground hover:text-primary transition-colors">
+                {t('footer.contact')}
               </a>
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                Termos de Uso
+                {t('footer.privacy')}
+              </a>
+              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                {t('footer.terms')}
               </a>
             </div>
             <p className="text-sm text-muted-foreground">
-              Ferramenta gratuita do{' '}
-              <span className="text-primary font-medium">Almanaque da Hora</span>
+              {t('footer.text')}{' '}
+              <span className="text-primary font-medium">{t('header.brand')}</span>
             </p>
           </div>
         </div>

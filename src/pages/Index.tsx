@@ -248,13 +248,13 @@ const Index = () => {
         <div className="container mx-auto px-4 py-8">
           <div className="text-center space-y-4">
             <div className="flex flex-wrap justify-center gap-6 text-sm">
-              <a href="/" className="text-muted-foreground hover:text-primary transition-colors">
+              <a href="/" className="text-primary-foreground hover:text-primary transition-colors">
                 {t('footer.home')}
               </a>
-              <a href="/about" className="text-muted-foreground hover:text-primary transition-colors">
+              <a href="/about" className="text-primary-foreground hover:text-primary transition-colors">
                 {t('footer.about')}
               </a>
-              <a href="/contact" className="text-muted-foreground hover:text-primary transition-colors">
+              <a href="/contact" className="text-primary-foreground hover:text-primary transition-colors">
                 {t('footer.contact')}
               </a>
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
